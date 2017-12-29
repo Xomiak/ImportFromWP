@@ -109,6 +109,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
         <div id="message">Ну что, приступим?</div>
         <div id="button">
+
             <button id="start">Начать</button>
             <button id="parse" style="display: none">Поехали!</button>
             <button id="stop" style="display: none">Стоп!</button>

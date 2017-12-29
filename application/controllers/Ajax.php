@@ -58,6 +58,25 @@ class Ajax extends CI_Controller {
             $article = getArticleByUrl($post['post_name']);
             if(!$article) {
                 /** Процесс сохранения статьи в нашу базу */
+
+                $darr = false;
+                $tarr = false;
+                if (isset($post['post_date'])) {
+                    $dtarr = explode(' ', $post['post_date']);
+                    if (isset($dtarr[0]))
+                        $darr = explode('-', $dtarr[0]);
+                    else $darr = array(0 => date("Y"), 1 => date('m'), 2 => date('d'));
+                    if (isset($dtarr[1]))
+                        $tarr = explode(':', $dtarr[1]);
+                    else $tarr = array(0 => 0, 1 => 0);
+                }
+
+                $date_unix = false;
+                if (is_array($darr) && is_array($tarr))
+                    $date_unix = mktime($tarr[0], $tarr[1], 0, $darr[1], $darr[2], $darr[0]);
+
+
+
                 $dbins = array(
                     'content' => $post['post_content'],
                     'name' => $post['post_title'],
@@ -65,12 +84,15 @@ class Ajax extends CI_Controller {
                     'parent_category_id' => 1,
                     'category_id' => '*1*',
                     'created_date' => $post['post_date'],
+                    'date'      => $post['post_date'],
                     'active' => 1,
                     'num' => $this->getNewNum('articles')
                 );
-                $post_date = $post['post_date'];
-                $pdArr = explode(' ', $post_date);
-                if (isset($pdArr[0])) $dbins['date'] = $pdArr[0];
+                if($date_unix)
+                    $dbins['unix'] = $dbins['date_unix'] = $date_unix;
+//                $post_date = $post['post_date'];
+//                $pdArr = explode(' ', $post_date);
+//                if (isset($pdArr[0])) $dbins['date'] = $pdArr[0];
                 //if(isset($pdArr[1])) $dbins['time'] = $pdArr[1];
 
                 $added = $db->insert('articles', $dbins);
@@ -90,7 +112,7 @@ class Ajax extends CI_Controller {
                 echo 'Найдена статья <b>'.$article['name'].'</b><br/>';
             }
 
-                if($article){
+                if($article && isset($_GET['get_files'])){
 
                     /** ищем подвязанные файлы */
                     $dbins = array();
